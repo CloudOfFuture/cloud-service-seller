@@ -99,7 +99,7 @@ public class SellerController {
     @PostMapping("/audit")
     public DataRet<String> audit(@RequestParam(value = "audit") String audit,
                                  @RequestParam(value = "id") Long id,
-                                 @RequestParam(value = "reason") String reason) {
+                                 @RequestParam(value = "reason",required = false) String reason) {
         return sellerService.audit(audit, reason, id);
     }
 }
