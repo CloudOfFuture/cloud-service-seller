@@ -1,4 +1,4 @@
-package com.kunlun.controller;
+package com.kunlun.api.mapper;
 
 import com.kunlun.entity.Store;
 import org.apache.ibatis.annotations.Mapper;
@@ -60,7 +60,7 @@ public interface SellerMapper {
      * @param id
      * @return
      */
-    Store findById(Long id);
+    Store findById(@Param("id") Long id);
 
     /**
      *修改店铺状态
@@ -69,7 +69,7 @@ public interface SellerMapper {
      * @param id
      * @return
      */
-    int updateStatus(String status, Long id);
+    int updateStatus(@Param("status") String status,@Param("id") Long id);
 
     /**
      * 修改店铺信息
@@ -85,5 +85,5 @@ public interface SellerMapper {
      * @param userId
      * @return
      */
-    Store findByUserId(Long userId);
+    Store findByUserId(@Param("userId") Long userId);
 }

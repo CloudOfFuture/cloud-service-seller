@@ -1,5 +1,7 @@
-package com.kunlun.controller;
+package com.kunlun.api.service.impl;
 
+import com.kunlun.api.mapper.SellerMapper;
+import com.kunlun.api.service.SellerService;
 import com.kunlun.entity.Store;
 import com.kunlun.enums.CommonEnum;
 import com.kunlun.result.DataRet;
@@ -29,10 +31,10 @@ public class SellerServiceImpl implements SellerService {
         if (store.getUserId() == null) {
             return new DataRet<>("ERROR", "参数错误");
         }
-        Integer validResult = sellerMapper.validCertification(store.getUserId());
-        if (validResult == 0) {
-            return new DataRet<>("ERROR", "未实名认证，不能创建店铺");
-        }
+//        Integer validResult = sellerMapper.validCertification(store.getUserId());
+//        if (validResult == 0) {
+//            return new DataRet<>("ERROR", "未实名认证，不能创建店铺");
+//        }
         Integer validByUserResult = sellerMapper.validByUserId(store.getUserId());
         if (validByUserResult > 0) {
             return new DataRet<>("ERROR", "不可重复创建店铺");

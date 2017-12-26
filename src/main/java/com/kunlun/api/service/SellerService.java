@@ -1,4 +1,4 @@
-package com.kunlun.controller;
+package com.kunlun.api.service;
 
 import com.kunlun.entity.Store;
 import com.kunlun.result.DataRet;

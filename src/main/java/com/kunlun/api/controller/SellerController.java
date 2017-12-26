@@ -1,5 +1,6 @@
-package com.kunlun.controller;
+package com.kunlun.api.controller;
 
+import com.kunlun.api.service.SellerService;
 import com.kunlun.entity.Store;
 import com.kunlun.result.DataRet;
 import org.springframework.beans.factory.annotation.Autowired;

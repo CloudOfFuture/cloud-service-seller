@@ -3,7 +3,7 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.kunlun.api.SellerMapper">
+<mapper namespace="com.kunlun.api.mapper.SellerMapper">
     <!--新增商铺-->
     <insert id="add" parameterType="com.kunlun.entity.Store">
         INSERT INTO t_store(
@@ -48,7 +48,7 @@
     </update>
 
     <!--修改店铺信息-->
-    <update id="modify" parameterType="com.kunlun.entity.Store">
+    <update id="update" parameterType="com.kunlun.entity.Store">
         UPDATE t_store SET
         <if test="mobile!=null">mobile=#{mobile},</if>
         <if test="audit!=null">audit=#{audit},</if>
