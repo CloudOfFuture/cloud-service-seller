@@ -92,6 +92,24 @@
         WHERE  id=#{id} AND status !='STATUS_DELETE'
     </select>
 
+    <!--商户详情-->
+    <select id="findByUserId" resultType="com.kunlun.entity.Store">
+        SELECT
+        id,
+        audit,
+        status,
+        mobile,
+        user_id,
+        store_no,
+        reputation,
+        store_name,
+        store_address,
+        store_description,
+        reason
+        FROM t_store
+        WHERE  user_id=#{userId} AND status !='STATUS_DELETE'
+    </select>
+
     <select id="validCertification" resultType="java.lang.Integer">
         SELECT COUNT(*) FROM t_user
         WHERE id=#{userId} AND status='NORMAL' AND certification='IS_AUTH'

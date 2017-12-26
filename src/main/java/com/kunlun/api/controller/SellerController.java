@@ -24,7 +24,7 @@ public class SellerController {
      * @param store
      * @return
      */
-    @PostMapping("/add")
+    @PostMapping("/add/store")
     public DataRet<String> add(@RequestBody Store store) {
         return sellerService.add(store);
     }
