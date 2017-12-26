@@ -115,4 +115,5 @@ public interface SellerMapper {
      * @return
      */
     Integer audit(@Param("audit") String audit, @Param("reason") String reason,@Param("id") Long id);
+
 }

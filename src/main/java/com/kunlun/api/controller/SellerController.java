@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
  * @created on 2017-12-26.
  */
 @RestController
-@RequestMapping("seller")
+@RequestMapping("/seller")
 public class SellerController {
 
     @Autowired

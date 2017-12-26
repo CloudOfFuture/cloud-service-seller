@@ -40,6 +40,7 @@ public interface SellerService {
     DataRet<String> update(Store store);
 
 
+
     /**
      * 查询店铺详情
      *
