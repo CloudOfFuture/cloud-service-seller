@@ -1,5 +1,6 @@
 package com.kunlun.api.mapper;
 
+import com.github.pagehelper.Page;
 import com.kunlun.entity.Store;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -86,4 +87,32 @@ public interface SellerMapper {
      * @return
      */
     Store findByUserId(@Param("userId") Long userId);
+
+    /**
+     * 获取店铺申请列表
+     *
+     * @param audit
+     * @param searchKey
+     * @return
+     */
+    Page<Store> findPage(@Param("audit") String audit,
+                         @Param("searchKey") String searchKey);
+
+    /**
+     * 校验是否是管理员用户
+     *
+     * @param userId
+     * @return
+     */
+    int validAdmin(@Param("userId") Long userId);
+
+    /**
+     * 审核
+     *
+     * @param audit
+     * @param reason
+     * @param id
+     * @return
+     */
+    Integer audit(@Param("audit") String audit, @Param("reason") String reason,@Param("id") Long id);
 }

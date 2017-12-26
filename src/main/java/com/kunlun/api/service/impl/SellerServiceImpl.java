@@ -1,10 +1,14 @@
 package com.kunlun.api.service.impl;
 
+import com.alibaba.druid.util.StringUtils;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.kunlun.api.mapper.SellerMapper;
 import com.kunlun.api.service.SellerService;
 import com.kunlun.entity.Store;
 import com.kunlun.enums.CommonEnum;
 import com.kunlun.result.DataRet;
+import com.kunlun.result.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -120,5 +124,53 @@ public class SellerServiceImpl implements SellerService {
             return new DataRet<>("ERROR", "查无结果");
         }
         return new DataRet<>(store);
+    }
+
+
+    /**
+     * 店铺列表
+     *
+     * @param userId
+     * @param pageNo
+     * @param pageSize
+     * @param audit
+     * @param searchKey
+     * @return
+     */
+    @Override
+    public PageResult findPage(Long userId, Integer pageNo, Integer pageSize, String audit, String searchKey) {
+//        int validResult = sellerMapper.validAdmin(userId);
+//        if (validResult == 0) {
+//            return new PageResult();
+//        }
+        PageHelper.startPage(pageNo, pageSize);
+        if (!StringUtils.isEmpty(searchKey)) {
+            searchKey = "%" + searchKey + "%";
+        }
+        Page<Store> page = sellerMapper.findPage(audit, searchKey);
+        return new PageResult(page);
+    }
+
+    /**
+     * 店铺审核
+     *
+     * @param audit
+     * @param reason
+     * @param id
+     * @return
+     */
+    @Override
+    public DataRet<String> audit(String audit, String reason, Long id) {
+        if (id == null) {
+            return new  DataRet<>("ERROR","参数错误");
+        }
+        if (audit.equals(CommonEnum.NOT_PASS_AUDIT.getCode()) && StringUtils.isEmpty(reason)) {
+            return new DataRet<>("ERROR", "请填写未通过原因");
+        }
+        Integer result = sellerMapper.audit(audit, reason, id);
+        if (result < 0) {
+            return new DataRet<>("ERROR", "审核失败");
+        }
+        return new DataRet<>("审核通过");
     }
 }

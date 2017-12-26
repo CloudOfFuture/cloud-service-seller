@@ -3,6 +3,7 @@ package com.kunlun.api.controller;
 import com.kunlun.api.service.SellerService;
 import com.kunlun.entity.Store;
 import com.kunlun.result.DataRet;
+import com.kunlun.result.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -68,5 +69,37 @@ public class SellerController {
     @GetMapping("/findByUserId")
     public DataRet<Store> findByUserId(@RequestParam(value = "userId") Long userId) {
         return sellerService.findByUserId(userId);
+    }
+
+    /**
+     * 店铺列表
+     *
+     * @param pageNo
+     * @param pageSize
+     * @param audit    审核状态 AUDITING待审核  NOT_PASS_AUDIT审核未通过 PASS_AUDIT审核通过
+     * @return
+     */
+    @GetMapping("/findPage")
+    public PageResult findPage(@RequestParam(value = "userId",required = false) Long userId,
+                               @RequestParam(value = "pageNo") Integer pageNo,
+                               @RequestParam(value = "pageSize") Integer pageSize,
+                               @RequestParam(value = "audit",required = false) String audit,
+                               @RequestParam(value = "searchKey",required = false) String searchKey) {
+        return sellerService.findPage(userId, pageNo, pageSize, audit, searchKey);
+    }
+
+    /**
+     * 店铺审核
+     *
+     * @param audit  AUDITING 待审核/审核中    NOT_PASS_AUDIT 审核未通过  PASS_AUDIT 审核通过
+     * @param reason
+     * @param id
+     * @return
+     */
+    @PostMapping("/audit")
+    public DataRet<String> audit(@RequestParam(value = "audit") String audit,
+                                 @RequestParam(value = "id") Long id,
+                                 @RequestParam(value = "reason") String reason) {
+        return sellerService.audit(audit, reason, id);
     }
 }

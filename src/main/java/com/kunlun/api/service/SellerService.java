@@ -2,6 +2,7 @@ package com.kunlun.api.service;
 
 import com.kunlun.entity.Store;
 import com.kunlun.result.DataRet;
+import com.kunlun.result.PageResult;
 
 /**
  * @author by hmy
@@ -46,4 +47,27 @@ public interface SellerService {
      * @return
      */
     DataRet<Store> findByUserId(Long userId);
+
+
+    /**
+     * 店铺列表
+     *
+     * @param userId
+     * @param pageNo
+     * @param pageSize
+     * @param audit
+     * @param searchKey
+     * @return
+     */
+    PageResult findPage(Long userId, Integer pageNo, Integer pageSize, String audit, String searchKey);
+
+    /**
+     * 店铺审核
+     *
+     * @param audit
+     * @param reason
+     * @param id
+     * @return
+     */
+    DataRet<String> audit(String audit, String reason, Long id);
 }
