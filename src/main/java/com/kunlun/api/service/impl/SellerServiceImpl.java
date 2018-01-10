@@ -3,12 +3,14 @@ package com.kunlun.api.service.impl;
 import com.alibaba.druid.util.StringUtils;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.kunlun.api.client.UserClient;
 import com.kunlun.api.mapper.SellerMapper;
 import com.kunlun.api.service.SellerService;
 import com.kunlun.entity.Store;
 import com.kunlun.enums.CommonEnum;
 import com.kunlun.result.DataRet;
 import com.kunlun.result.PageResult;
+import com.kunlun.utils.IDWorker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,34 +22,43 @@ import org.springframework.stereotype.Service;
 @Service
 public class SellerServiceImpl implements SellerService {
 
-
     @Autowired
     private SellerMapper sellerMapper;
+
+    @Autowired
+    private UserClient userClient;
 
     /**
      * 商户店铺建立
      *
-     * @param store
-     * @return
+     * @param store Store
+     * @return DataRet
      */
     @Override
-    public DataRet<String> add(Store store) {
+    public DataRet<String> add(Store store) throws Exception {
         if (store.getUserId() == null) {
             return new DataRet<>("ERROR", "参数错误");
+
         }
-//        Integer validResult = sellerMapper.validCertification(store.getUserId());
-//        if (validResult == 0) {
-//            return new DataRet<>("ERROR", "未实名认证，不能创建店铺");
-//        }
-        Integer validByUserResult = sellerMapper.validByUserId(store.getUserId());
-        if (validByUserResult > 0) {
+        int validResult = sellerMapper.validMobile(store.getMobile());
+        if (validResult > 0) {
+            return new DataRet<>("ERROR", "一个手机号只能绑定一个店铺");
+        }
+        validResult = sellerMapper.validCertification(store.getUserId());
+        if (validResult == 0) {
+            return new DataRet<>("ERROR", "未实名认证，不能创建店铺");
+        }
+        validResult = sellerMapper.validByUserId(store.getUserId());
+        if (validResult > 0) {
             return new DataRet<>("ERROR", "不可重复创建店铺");
         }
-        Integer validNameResult = sellerMapper.validByName(store.getStoreName());
-        if (validNameResult > 0) {
+        validResult = sellerMapper.validByName(store.getStoreName());
+        if (validResult > 0) {
             return new DataRet<>("ERROR", "店铺名称已存在");
         }
-        Integer result = sellerMapper.add(store);
+        String storeNo = "HKM" + IDWorker.getFlowIdWorkerInstance().nextId() / 100000;
+        store.setStoreNo(storeNo);
+        int result = sellerMapper.add(store);
         if (result <= 0) {
             return new DataRet<>("ERROR", "新增店铺失败");
         }
@@ -58,38 +69,45 @@ public class SellerServiceImpl implements SellerService {
     /**
      * 修改店铺状态
      *
-     * @param id
-     * @param status
-     * @param operator
-     * @return
+     * @param id       店铺id
+     * @param status   店铺状态 NORMAL 正常,
+     *                 CLOSE_LEADER 管理员关闭,
+     *                 CLOSE 关闭，
+     *                 DELETE 删除状态
+     * @param operator 操作人id
+     * @return DataRet
      */
     @Override
-    public DataRet<String> updateStatus(Long id, String status, String operator) {
+    public DataRet<String> updateStatus(Long id, String status, Long operator) {
         if (id == null) {
             return new DataRet<>("ERROR", "参数错误");
         }
+        boolean isAdminUser = userClient.validAdmin(operator).isSuccess();
+        if (!isAdminUser && CommonEnum.CLOSE_LEADER.getCode().equals(status)) {
+            return new DataRet<>("ERROR", "只有管理员才能永久关闭");
+        }
         Store store = sellerMapper.findById(id);
+        if (CommonEnum.CLOSE_LEADER.getCode().equals(store.getStatus()) && !isAdminUser) {
+            //被管理员关闭，不能修改
+            return new DataRet<>("ERROR", "只有管理员才能修改");
+        }
         if (CommonEnum.DELETE.getCode().equals(store.getStatus())) {
             //已经删除的，不能修改
             return new DataRet<>("ERROR", "已经删除的，不能修改");
         }
-        if (CommonEnum.CLOSE_LEADER.getCode().equals(store.getStatus())) {
-            //被管理员关闭，不能修改
-            return new DataRet<>("ERROR", "被管理员关闭，不能修改");
-        }
         int result = sellerMapper.updateStatus(status, id);
-        if (result <= 0) {
-            return new DataRet<>("ERROR", "修改失败");
+        if (result > 0) {
+            return new DataRet<>("修改成功");
         }
-        return new DataRet("修改成功");
+        return new DataRet<>("ERROR", "修改失败");
     }
 
 
     /**
      * 修改店铺信息
      *
-     * @param store
-     * @return
+     * @param store Store
+     * @return DataRet
      */
     @Override
     public DataRet<String> update(Store store) {
@@ -97,22 +115,26 @@ public class SellerServiceImpl implements SellerService {
             return new DataRet<>("ERROR", "参数错误");
         }
         store.setAudit(CommonEnum.AUDITING.getCode());
-        Integer validName = sellerMapper.validByNameAndId(store.getStoreName(), store.getId());
-        if (validName > 0) {
+        int validResult = sellerMapper.validByNameAndId(store.getStoreName(), store.getId());
+        if (validResult > 0) {
             return new DataRet<>("ERROR", "店铺名称已存在");
         }
-        int result = sellerMapper.update(store);
-        if (result <= 0) {
-            return new DataRet<>("ERROR", "修改失败");
+        validResult = sellerMapper.validMobileAndId(store.getMobile(), store.getId());
+        if (validResult > 0) {
+            return new DataRet<>("ERROR", "该手机号基于绑定其他店铺");
         }
-        return new DataRet<>("修改成功");
+        int result = sellerMapper.update(store);
+        if (result > 0) {
+            return new DataRet<>("修改成功");
+        }
+        return new DataRet<>("ERROR", "修改失败");
     }
 
     /**
      * 查询店铺详情
      *
-     * @param userId
-     * @return
+     * @param userId Long
+     * @return Store
      */
     @Override
     public DataRet<Store> findByUserId(Long userId) {
@@ -130,48 +152,47 @@ public class SellerServiceImpl implements SellerService {
     /**
      * 店铺列表
      *
-     * @param userId
-     * @param pageNo
-     * @param pageSize
-     * @param audit
-     * @param searchKey
-     * @return
+     * @param userId    Long
+     * @param pageNo    Integer
+     * @param pageSize  Integer
+     * @param audit     审核状态 AUDITING待审核
+     *                  NOT_PASS_AUDIT审核未通过
+     *                  PASS_AUDIT审核通过
+     * @param searchKey String
+     * @return PageResult
      */
     @Override
     public PageResult findPage(Long userId, Integer pageNo, Integer pageSize, String audit, String searchKey) {
-//        int validResult = sellerMapper.validAdmin(userId);
-//        if (validResult == 0) {
-//            return new PageResult();
-//        }
         PageHelper.startPage(pageNo, pageSize);
         if (!StringUtils.isEmpty(searchKey)) {
             searchKey = "%" + searchKey + "%";
         }
-        Page<Store> page = sellerMapper.findPage(audit, searchKey);
-        return new PageResult(page);
+        Page<Store> page = sellerMapper.findPage(audit, userId, searchKey);
+        return new PageResult<>(page);
     }
 
     /**
      * 店铺审核
      *
-     *
-     * @param audit
-     * @param reason
-     * @param id
-     * @return
+     * @param audit  AUDITING 待审核
+     *               NOT_PASS_AUDIT 审核未通过
+     *               PASS_AUDIT 审核通过
+     * @param reason 未通过原因
+     * @param id     店铺id
+     * @return DataRet
      */
     @Override
     public DataRet<String> audit(String audit, String reason, Long id) {
         if (id == null) {
-            return new  DataRet<>("ERROR","参数错误");
+            return new DataRet<>("ERROR", "参数错误");
         }
         if (audit.equals(CommonEnum.NOT_PASS_AUDIT.getCode()) && StringUtils.isEmpty(reason)) {
             return new DataRet<>("ERROR", "请填写未通过原因");
         }
-        Integer result = sellerMapper.audit(audit, reason, id);
-        if (result < 0) {
-            return new DataRet<>("ERROR", "审核失败");
+        int result = sellerMapper.audit(audit, reason, id);
+        if (result > 0) {
+            return new DataRet<>("审核通过");
         }
-        return new DataRet<>("审核通过");
+        return new DataRet<>("ERROR", "审核失败");
     }
 }

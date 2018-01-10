@@ -17,7 +17,7 @@ public interface SellerService {
      * @param store
      * @return
      */
-    DataRet<String> add(Store store);
+    DataRet<String> add(Store store) throws Exception;
 
 
     /**
@@ -28,7 +28,7 @@ public interface SellerService {
      * @param operator
      * @return
      */
-    DataRet<String> updateStatus(Long id, String status, String operator);
+    DataRet<String> updateStatus(Long id, String status, Long operator);
 
 
     /**

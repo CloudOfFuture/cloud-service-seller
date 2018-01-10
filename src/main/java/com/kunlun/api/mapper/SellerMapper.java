@@ -19,7 +19,7 @@ public interface SellerMapper {
      * @param userId
      * @return
      */
-    Integer validCertification(@Param("userId") Long userId);
+    int validCertification(@Param("userId") Long userId);
 
     /**
      * 校验用户是否已经存在店铺
@@ -27,7 +27,7 @@ public interface SellerMapper {
      * @param userId
      * @return
      */
-    Integer validByUserId(@Param("userId") Long userId);
+    int validByUserId(@Param("userId") Long userId);
 
 
     /**
@@ -36,7 +36,7 @@ public interface SellerMapper {
      * @param storeName
      * @return
      */
-    Integer validByName(@Param("storeName") String storeName);
+    int validByName(@Param("storeName") String storeName);
 
     /**
      * 根据id校验店铺名称是否已经存在
@@ -45,7 +45,7 @@ public interface SellerMapper {
      * @param id
      * @return
      */
-    Integer validByNameAndId(@Param("storeName") String storeName,@Param("id") Long id);
+    int validByNameAndId(@Param("storeName") String storeName, @Param("id") Long id);
 
     /**
      * 店铺新增
@@ -53,7 +53,7 @@ public interface SellerMapper {
      * @param store
      * @return
      */
-    Integer add(Store store);
+    int add(Store store);
 
     /**
      * 根据id获取店铺详情
@@ -64,13 +64,13 @@ public interface SellerMapper {
     Store findById(@Param("id") Long id);
 
     /**
-     *修改店铺状态
+     * 修改店铺状态
      *
      * @param status
      * @param id
      * @return
      */
-    int updateStatus(@Param("status") String status,@Param("id") Long id);
+    int updateStatus(@Param("status") String status, @Param("id") Long id);
 
     /**
      * 修改店铺信息
@@ -92,19 +92,13 @@ public interface SellerMapper {
      * 获取店铺申请列表
      *
      * @param audit
+     * @param userId
      * @param searchKey
      * @return
      */
     Page<Store> findPage(@Param("audit") String audit,
+                         @Param("userId") Long userId,
                          @Param("searchKey") String searchKey);
-
-    /**
-     * 校验是否是管理员用户
-     *
-     * @param userId
-     * @return
-     */
-    int validAdmin(@Param("userId") Long userId);
 
     /**
      * 审核
@@ -114,6 +108,23 @@ public interface SellerMapper {
      * @param id
      * @return
      */
-    Integer audit(@Param("audit") String audit, @Param("reason") String reason,@Param("id") Long id);
+    int audit(@Param("audit") String audit, @Param("reason") String reason, @Param("id") Long id);
 
+    /**
+     * 创建店铺手机号校验
+     *
+     * @param mobile
+     * @return
+     */
+    int validMobile(@Param("mobile") String mobile);
+
+    /**
+     * 校验手机号
+     *
+     * @param mobile
+     * @param id
+     * @return
+     */
+    int validMobileAndId(@Param("mobile") String mobile,
+                         @Param("id") Long id);
 }

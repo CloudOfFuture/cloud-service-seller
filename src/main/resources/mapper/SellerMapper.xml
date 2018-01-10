@@ -69,6 +69,11 @@
         SELECT COUNT(*) FROM t_store WHERE store_name=#{storeName} AND status='NORMAL' AND id!=#{id}
     </select>
 
+    <!--根据 id 校验mobile是否存在-->
+    <select id="validMobileAndId" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM t_store WHERE mobile=#{mobile} AND status='NORMAL' AND id!=#{id}
+    </select>
+
     <!--校验商户是否已经存在商铺-->
     <select id="validByUserId" resultType="java.lang.Integer">
         SELECT COUNT(*) FROM t_store WHERE user_id=#{userId} AND status='NORMAL'
@@ -105,17 +110,24 @@
         store_name,
         store_address,
         store_description,
-        reason
+        reason,
+        create_date
         FROM t_store
         WHERE  user_id=#{userId} AND status !='STATUS_DELETE'
     </select>
 
     <select id="validCertification" resultType="java.lang.Integer">
         SELECT COUNT(*) FROM t_user
-        WHERE id=#{userId} AND status='NORMAL' AND certification='IS_AUTH'
+        WHERE id=#{userId} AND status='NORMAL' AND certification='PASS_AUTH'
     </select>
 
-    <!--商铺列表 AUDITING 待审核/审核中    NOT_PASS_AUDIT审核未通过  PASS_AUDIT审核通过-->
+    <select id="validMobile" resultType="java.lang.Integer">
+        SELECT COUNT(*
+        ) FROM t_store
+        WHERE mobile=#{mobile} AND (status='NORMAL' OR status='CLOSE')
+    </select>
+
+    <!--商铺列表 AUDITING 审核中/待审核 NOT_PASS_AUDIT审核未通过 PASS_AUDIT审核通过-->
     <select id="findPage" resultType="com.kunlun.entity.Store">
         SELECT
         id,
@@ -129,8 +141,10 @@
         store_address,
         store_description
         FROM t_store WHERE 1=1
-        <if test="audit!=null">AND audit=#{audit}</if>
-        <if test="searchKey!=null">AND CONCAT_WS('',store_no,store_name,store_address,store_description)
+        <if test="userId!=null">AND user_id=#{userId}</if>
+        <if test="audit!=null and  audit!=''">AND audit=#{audit}</if>
+        <if test="searchKey!=null and searchKey!='' ">
+            AND CONCAT_WS('',store_no,store_name,store_address,store_description)
             LIKE #{searchKey}
         </if>
     </select>
